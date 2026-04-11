@@ -6,12 +6,13 @@ import json
 import random
 from dotenv import load_dotenv
 from email.message import EmailMessage
-
+# pip freeze > package.txt
 
 bot=discord.Bot()
 
 # 全域變數
 code_ram={}
+CODE_TIMEOUT=180
 
 #====================
 # 載入env
@@ -56,7 +57,7 @@ def save_massage(data):
 # view進驗證學號modal
 #====================     
 
-class start_verify(discord.ui.View):
+class StartVerify(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         
@@ -66,16 +67,16 @@ class start_verify(discord.ui.View):
             custom_id="verify_message"
         )
     
-    # 連結到ask_studentid
+    # 連結到AskStudentId
     async def start(self,button,interaction):
-        await interaction.response.send_modal(ask_studentid())
+        await interaction.response.send_modal(AskStudentId())
         print("進入對話框")
 
 #====================
 # Modal輸入學號
 #====================
 
-class ask_studentid(discord.ui.Modal):
+class AskStudentId(discord.ui.Modal):
     def __init__(self):
         super().__init__(title="身分驗證")
         print("init")
@@ -124,7 +125,7 @@ class ask_studentid(discord.ui.Modal):
             asyncio.create_task(code_timer(interaction.user.id))
             await interaction.followup.send(
                 f"成功寄送驗證碼，請查看您的學校信箱，並在以下輸入框輸入驗證碼",
-                view=start_code(),
+                view=StartCode(),
                 ephemeral=True
             )
         else:
@@ -166,7 +167,7 @@ async def send_email(to, code):
 #====================
 
 async def code_timer(user_id):
-    await asyncio.sleep(180)
+    await asyncio.sleep(CODE_TIMEOUT)
     if user_id in code_ram:
         del code_ram[user_id]
   
@@ -174,9 +175,9 @@ async def code_timer(user_id):
 # view進入驗證碼modal
 #====================
 
-class start_code(discord.ui.View):
+class StartCode(discord.ui.View):
     def __init__(self,):
-        super().__init__(timeout=180, disable_on_timeout=True)
+        super().__init__(timeout=CODE_TIMEOUT, disable_on_timeout=True)
 
     @discord.ui.button(
         label="點此輸入驗證碼",
@@ -185,13 +186,13 @@ class start_code(discord.ui.View):
     
     # 傳送到modal
     async def start(self,button,interaction):
-        await interaction.response.send_modal(enter_code())
+        await interaction.response.send_modal(EnterCode())
 
 #====================
 # Modal輸入驗證碼
 #====================      
 
-class enter_code(discord.ui.Modal):
+class EnterCode(discord.ui.Modal):
     def __init__(self):
         super().__init__(title="輸入驗證碼")
         self.add_item(
@@ -253,14 +254,14 @@ async def on_ready():
     print(f"{bot.user}已上線!!")
 
     # 驗證學號訊息
-    bot.add_view(start_verify())
+    bot.add_view(StartVerify())
     channel=bot.get_channel(int(verify["channel"]))
     try :
         msg=await channel.fetch_message(verify.get("message_id"))
     except discord.NotFound :
         msg = await channel.send(
             "請點擊以下按鈕驗證身分",
-            view=start_verify()
+            view=StartVerify()
         )
         verify["message_id"]=msg.id
         save_massage(verify)
