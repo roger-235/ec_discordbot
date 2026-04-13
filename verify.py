@@ -301,7 +301,7 @@ class EnterCode(discord.ui.Modal):
             )
 
             # 存入資料庫
-            init_data(user_data["student_id"],interaction.user,role)
+            init_data(user_data["student_id"],interaction.user.id,role)
         else :
             await interaction.response.send_message(
                 f"找不到身分組:{role}",
@@ -313,12 +313,12 @@ class EnterCode(discord.ui.Modal):
 # 資料存入資料庫
 #====================
 
-def init_data(student_id,discord_id,role,):
+def init_data(student_id,discord_id,role):
     verified_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
     cursor.execute(
         """
         INSERT OR REPLACE INTO user_sql(student_id,discord_id,role,verified_time)
-        VELUES(?,?,?,?)
+        VALUES(?,?,?,?)
         """,
         (student_id,discord_id,role,verified_time)
     )
