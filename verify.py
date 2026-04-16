@@ -6,11 +6,18 @@ import asyncio
 import json
 import random
 import datetime
+import logging
 from dotenv import load_dotenv
 from email.message import EmailMessage
 # pip freeze > package.txt
 
 bot = None
+
+#====================
+# 載入log
+#====================
+
+logger=logging.getLogger("ec_bot")
 
 #====================
 # 傳入bot
@@ -92,6 +99,8 @@ async def save_massage():
         verify_msg["message_id"]=msg.id
         with open(remember_msg_path,"w",encoding="utf-8",) as r:
             json.dump(verify_msg,r,indent=4)
+    except Exception as e :
+        logging.error(f"記憶驗證初始化：{e}", exc_info=True)
 
 #====================
 # view進驗證學號modal
@@ -109,24 +118,33 @@ class StartVerify(discord.ui.View):
     
     # 連結到AskStudentId
     async def start(self,button,interaction):
-        
-        # 確認使用者沒有二次驗證
-        cursor.execute("SELECT * FROM user_sql WHERE discord_id =?",(interaction.user.id,))
-        check=cursor.fetchone()
-        if check :
-            await interaction.response.send_message(
-                "你都有身分組了還想幹嘛",
-                ephemeral=True
+        try :
+            # 確認使用者沒有二次驗證
+            cursor.execute("SELECT * FROM user_sql WHERE discord_id =?",(interaction.user.id,))
+            check=cursor.fetchone()
+            if check :
+                await interaction.response.send_message(
+                    "你都有身分組了還想幹嘛",
+                    ephemeral=True
+                )
+                return
+            
+            await interaction.response.send_modal(AskStudentId())
+        except Exception as e :
+            logging.error(f"開始驗證按鈕：{e}", exc_info=True)
+            interaction.response.send_message(
+                "按鈕出了問題，我們已收到報錯訊息，請耐心等候我們的修復！"
             )
-            return
-        
-        await interaction.response.send_modal(AskStudentId())
 
 #====================
 # Modal輸入學號
 #====================
 
 class AskStudentId(discord.ui.Modal):
+    """
+    輸入學號的輸入框
+    """
+    
     def __init__(self):
         super().__init__(title="身分驗證")
         self.add_item(
@@ -140,57 +158,63 @@ class AskStudentId(discord.ui.Modal):
     
     # 產生驗證碼
     async def callback(self,interaction):
-        
-        student_id=self.children[0].value.upper()
+        try :
+            student_id=self.children[0].value.upper()
 
-        # 確認伺服器沒人用過這個學號
-        cursor.execute("SELECT * FROM user_sql WHERE student_id =?",(student_id,))
-        check=cursor.fetchone()
-        if check :
-            await interaction.response.send_message(
-                f"此學號已綁定一個帳號：{check(1)}，你可以再次驗證以覆蓋掉那個帳號",
-                view=StartCode(),
-                ephemeral=True
+            # 確認伺服器沒人用過這個學號
+            cursor.execute("SELECT * FROM user_sql WHERE student_id =?",(student_id,))
+            check=cursor.fetchone()
+            if check :
+                await interaction.response.send_message(
+                    f"此學號已綁定一個帳號：{check(1)}，你可以再次驗證以覆蓋掉那個帳號",
+                    view=StartCode(),
+                    ephemeral=True
+                )
+                return
+
+            # 確認是電子工程系學生
+            if not student_id.startswith("C114152"):
+                await interaction.response.send_message(
+                    "學號格式錯誤",
+                    ephemeral=True
+                )
+                return
+            
+            code=str(random.randint(100000,999999))
+
+            # 記憶驗證碼(大寫)
+            code_ram[interaction.user.id]={
+                "code":code,
+                "student_id":student_id
+            }
+
+            await interaction.response.defer(ephemeral=True,invisible=False)
+            
+                # 寄信
+            success=await send_email(
+                f"{student_id.lower()}@nkust.edu.tw",
+                code
             )
-            return
 
-        # 確認是電子工程系學生
-        if not student_id.startswith("C114152"):
-            await interaction.response.send_message(
-                "學號格式錯誤",
+            # 判斷寄信是否成功
+            if success:
+                asyncio.create_task(code_timer(interaction.user.id))
+                await interaction.followup.send(
+                    f"成功寄送驗證碼，請查看您的學校信箱，並在以下輸入框輸入驗證碼",
+                    view=StartCode(),
+                    ephemeral=True
+                )
+            else:
+                await interaction.followup.send(
+                    f"驗證碼寄送失敗，請確認您輸入了正確的學號",
+                    ephemeral=True
+                )
+        except Exception as e :
+            logging.error(f"輸入學號並傳送驗證碼：{e}", exc_info=True)
+            interaction.response.send_message(
+                "產生驗證碼或寄信途中出了點問題，我們已收到報錯訊息，請耐心等候我們的修復！",
                 ephemeral=True
-            )
-            return
-        
-        code=str(random.randint(100000,999999))
-
-        # 記憶驗證碼(大寫)
-        code_ram[interaction.user.id]={
-            "code":code,
-            "student_id":student_id
-        }
-
-        await interaction.response.defer(ephemeral=True,invisible=False)
-        
-        # 寄信
-        success=await send_email(
-            f"{student_id.lower()}@nkust.edu.tw",
-            code
-        )
-
-        # 判斷寄信是否成功
-        if success:
-            asyncio.create_task(code_timer(interaction.user.id))
-            await interaction.followup.send(
-                f"成功寄送驗證碼，請查看您的學校信箱，並在以下輸入框輸入驗證碼",
-                view=StartCode(),
-                ephemeral=True
-            )
-        else:
-            await interaction.followup.send(
-                f"驗證碼寄送失敗，請確認您輸入了正確的學號",
-                ephemeral=True
-            )
+                )
 
 #====================
 # 寄驗證信
@@ -281,33 +305,40 @@ class EnterCode(discord.ui.Modal):
                 ephemeral=True
             )
             return
-        
-        # 抓年級跟班級
-        role_grade=role_map_grade[user_data["student_id"][:4]]
-        role_class=role_map_class[user_data["student_id"][7]]
-        role=f"{role_grade}-{role_class}"
-        
-        # 抓身分組
-        role_search=discord.utils.get(interaction.guild.roles,name=role)
+        try :
 
-        # bot分配身分組
-        if role_search:
-            channel=bot.get_channel(1488954519512416397)
-            await interaction.user.add_roles(role_search)
-            await channel.send(f"歡迎{user_data['student_id']}加入伺服器")
-            await interaction.response.send_message(
-                f"✅ 驗證成功！已分配身分組：'{role}'",
-                ephemeral=True
-            )
+            # 抓年級跟班級
+            role_grade=role_map_grade[user_data["student_id"][:4]]
+            role_class=role_map_class[user_data["student_id"][7]]
+            role=f"{role_grade}-{role_class}"
+            
+            # 抓身分組
+            role_search=discord.utils.get(interaction.guild.roles,name=role)
 
-            # 存入資料庫
-            init_data(user_data["student_id"],interaction.user.id,role)
-        else :
-            await interaction.response.send_message(
-                f"找不到身分組:{role}",
+            # bot分配身分組
+            if role_search:
+                channel=bot.get_channel(1488954519512416397)
+                await interaction.user.add_roles(role_search)
+                await channel.send(f"歡迎{user_data['student_id']}加入伺服器")
+                await interaction.response.send_message(
+                    f"✅ 驗證成功！已分配身分組：'{role}'",
+                    ephemeral=True
+                )
+
+                # 存入資料庫
+                init_data(user_data["student_id"],interaction.user.id,role)
+            else :
+                await interaction.response.send_message(
+                    f"找不到身分組:{role}",
+                    ephemeral=True
+                )
+                return
+        except Exception as e :
+            logging.error(f"分配身分組：{e}", exc_info=True)
+            interaction.response.send_message(
+                "分配身分組出了點問題，我們已收到報錯訊息，請耐心等候我們的修復！",
                 ephemeral=True
-            )
-            return
+                )
 
 #====================
 # 資料存入資料庫

@@ -2,10 +2,19 @@ import discord
 import os
 import verify
 import datetime
+import logging
+from logger import setup_logging
 from dotenv import load_dotenv
 
 bot = discord.Bot()
 verify.init(bot)
+
+#====================
+# 載入log
+#====================
+
+setup_logging()
+logger=logging.getLogger("ec_bot")
 
 #====================
 # 載入env
