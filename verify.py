@@ -171,11 +171,12 @@ class AskStudentId(discord.ui.Modal):
                     ephemeral=True
                 )
                 return
-
+            
+            student_id[3:]
             # 確認是電子工程系學生
-            if not student_id.startswith("C114152"):
+            if student_id[2:] != "C114" or student_id[3:6] != "152":
                 await interaction.response.send_message(
-                    "學號格式錯誤",
+                    "你確定你是建工電子的嗎，如果是轉系生請開單聯絡管理員手動把你加入",
                     ephemeral=True
                 )
                 return
@@ -325,6 +326,9 @@ class EnterCode(discord.ui.Modal):
                     ephemeral=True
                 )
 
+                cursor.execute("SELECT * FROM user_sql WHERE student_id")
+                delete=cursor.fetchone()
+                
                 # 存入資料庫
                 init_data(user_data["student_id"],interaction.user.id,role)
             else :
