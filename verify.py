@@ -326,8 +326,11 @@ class EnterCode(discord.ui.Modal):
                     ephemeral=True
                 )
 
+                # 刪掉原本的人的所有身分組
                 cursor.execute("SELECT * FROM user_sql WHERE student_id")
-                delete=cursor.fetchone()
+                delete = cursor.fetchone()
+                member = interaction.guild.get_member(delete[1])
+                await member.edit(roles=[])
                 
                 # 存入資料庫
                 init_data(user_data["student_id"],interaction.user.id,role)
@@ -337,6 +340,7 @@ class EnterCode(discord.ui.Modal):
                     ephemeral=True
                 )
                 return
+            
         except Exception as e :
             logging.error(f"分配身分組：{e}", exc_info=True)
             interaction.response.send_message(
