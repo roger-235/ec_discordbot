@@ -327,13 +327,13 @@ class EnterCode(discord.ui.Modal):
                 )
 
                 # 刪掉原本的人的所有身分組
-                cursor.execute("SELECT * FROM user_sql WHERE student_id")
+                cursor.execute("SELECT * FROM user_sql WHERE student_id = ?",(student_id,))
                 delete = cursor.fetchone()
                 member = interaction.guild.get_member(delete[1])
                 await member.edit(roles=[])
                 
                 # 存入資料庫
-                init_data(user_data["student_id"],interaction.user.id,role)
+                inc_data(user_data["student_id"],interaction.user.id,role)
             else :
                 await interaction.response.send_message(
                     f"找不到身分組:{role}",
@@ -352,7 +352,7 @@ class EnterCode(discord.ui.Modal):
 # 資料存入資料庫
 #====================
 
-def init_data(student_id,discord_id,role):
+def inc_data(student_id,discord_id,role):
     verified_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
     cursor.execute(
         """
