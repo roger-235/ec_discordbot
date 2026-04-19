@@ -1,13 +1,21 @@
 import discord
 import os
-import verify
 import datetime
+import verify
+import count
 import logging
+from discord.ext import commands, tasks
 from logger import setup_logging
 from dotenv import load_dotenv
 
-bot = discord.Bot()
+#====================
+# 傳bot參數
+#====================
+
+intents = discord.Intents.all()
+bot = discord.Bot(intents=intents)
 verify.init(bot)
+count.init(bot)
 
 #====================
 # 載入log
@@ -36,5 +44,11 @@ async def on_ready():
     # 驗證學號訊息
     bot.add_view(verify.StartVerify())
     await verify.save_massage()
+
+    update_stats.start()
+
+@tasks.loop(minutes = 10)
+async def update_stats():
+    await count.rename()
 
 bot.run(discordbot_api)

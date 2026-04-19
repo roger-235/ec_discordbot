@@ -32,11 +32,11 @@ class WebhookHandler(logging.Handler):
             }]
         }
         async with aiohttp.ClientSession() as session:
-            await session.post(self.webhook, json=payload)
+            await session.post(self.webhook_url, json=payload)
 
 # 初始設定handler
 def setup_logging() -> logging.Logger:
-    logger=logging.Logger("ec_bot")
+    logger=logging.getLogger("ec_bot")
     logger.setLevel(logging.DEBUG)
     
     # 輸出格式

@@ -327,7 +327,7 @@ class EnterCode(discord.ui.Modal):
                 )
 
                 # 刪掉原本的人的所有身分組
-                cursor.execute("SELECT * FROM user_sql WHERE student_id = ?",(student_id,))
+                cursor.execute("SELECT * FROM user_sql WHERE student_id = ?",(user_data["student_id"],))
                 delete = cursor.fetchone()
                 member = interaction.guild.get_member(delete[1])
                 await member.edit(roles=[])
