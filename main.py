@@ -1,11 +1,11 @@
 import discord
 import os
 import datetime
-import verify
-import count
+import core.verify as verify
+import core.count as count
 import logging
 from discord.ext import commands, tasks
-from logger import setup_logging
+from core.logger import setup_logging
 from dotenv import load_dotenv
 
 #====================

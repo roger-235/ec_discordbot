@@ -7,6 +7,7 @@ import json
 import random
 import datetime
 import logging
+from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON
 from dotenv import load_dotenv
 from email.message import EmailMessage
 # pip freeze > package.txt
@@ -62,24 +63,21 @@ email_pw=os.getenv("email_pw")
 # 載入json
 #====================
 
-base_dir=os.path.dirname(__file__)
-remember_msg_path=os.path.join(base_dir,"json/remember_msg.json")
-
-with open(os.path.join("json/email.json"),"r",encoding="utf-8") as v:
+with open(EMAIL_JSON,"r",encoding="utf-8") as v:
     email_json=json.load(v)
-with open(os.path.join(base_dir,"json/role_map.json"),"r",encoding="utf-8") as r:
+with open(ROLE_MAP_JSON,"r",encoding="utf-8") as r:
     role_map=json.load(r)
     role_map_grade=role_map["grade"]
     role_map_class=role_map["class"]
 
 # 驗證信息記憶
-if not os.path.exists(remember_msg_path):
-    with open(remember_msg_path,"w",encoding="utf-8") as r:
+if not REMEMBER_MSG_JSON:
+    with open(REMEMBER_MSG_JSON,"w",encoding="utf-8") as r:
         verify_msg={"channel":"1490543834302775438"}
         data=verify_msg
         json.dump(data,r,indent=4)
 else :
-    with open(remember_msg_path,"r",encoding="utf-8") as r:
+    with open(REMEMBER_MSG_JSON,"r",encoding="utf-8") as r:
         verify_msg=json.load(r)
 
 
@@ -97,7 +95,7 @@ async def save_massage():
             view=StartVerify(),
         )
         verify_msg["message_id"]=msg.id
-        with open(remember_msg_path,"w",encoding="utf-8",) as r:
+        with open(REMEMBER_MSG_JSON,"w",encoding="utf-8",) as r:
             json.dump(verify_msg,r,indent=4)
     except Exception as e :
         logging.error(f"記憶驗證初始化：{e}", exc_info=True)
