@@ -2,11 +2,11 @@ import discord
 import os
 import datetime
 import logging
-import core.verify as verify
-import core.count as count
-import core.admin_command as admin_command
+import core.system.verify as verify
+import core.system.count as count
+import core.admin_command.edit_vip as edit_vip
 from discord.ext import commands, tasks
-from core.logger import setup_logging
+from core.system.logger import setup_logging
 from dotenv import load_dotenv
 
 #====================
@@ -17,7 +17,7 @@ intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
 verify.init(bot)
 count.init(bot)
-admin_command.init(bot)
+edit_vip.init(bot)
 
 #====================
 # 載入log
@@ -55,18 +55,20 @@ async def on_ready():
 
 @tasks.loop(minutes = 10)
 async def update_stats():
+
     await count.rename()
 
 #====================
 # 加入繳費系會員的指令
 #====================
 
-@bot.slash_command(name = "add_vip", description = "丟一個把學號全放在A列的.xlsx檔案可以批次輸入學號來增加繳費系會員名單")
-async def add_vip(ctx, 
-    student_id = discord.Option(str, description = "輸入學號", required = False),
+@bot.slash_command(name = "edit_vip", description = "丟一個把學號全放在A列的.xlsx檔案可以批次輸入學號來編輯繳費系會員名單")
+async def add_vip(ctx,
+    action = discord.Option(str, choices = ["加入", "移除"]),
+    one_id = discord.Option(str, description = "只能輸入一個學號", required = False),
     file = discord.Option(discord.Attachment, "上傳檔案", required = False)
     ):
     
-    await admin_command.add_vip(ctx, student_id, file)
+    await edit_vip.add_vip(ctx, action, one_id, file)
     
 bot.run(discordbot_api)

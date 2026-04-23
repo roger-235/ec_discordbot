@@ -16,7 +16,8 @@ logger = logging.getLogger("ec_bot")
 # 給繳費系會員身分組
 #===================
 
-async def add_vip(ctx, student_id, file):
+async def add_vip(ctx, action, student_id, file):
+    '''批量編輯繳費系會員'''
     await ctx.defer()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -46,8 +47,35 @@ async def add_vip(ctx, student_id, file):
             )
             return True
         return False
+    
+    # 一次的移除操作
+    async def do_delete(id):
+        cursor.execute("SELECT * FROM user_sql WHERE student_id = ?",
+            (id, )
+        )
+        vip = cursor.fetchone()
+
+        if not vip:
+            return False
+        
+        member = ctx.guild.get_member(vip[2])
+
+        if member:
+            await member.remove_roles(VIP_ROLE)
+            cursor.execute(
+                "UPDATE user_sql SET is_vip = 0 WHERE student_id = ?",
+                (id,)
+            )
+            return True
+        return False
 
     try:
+
+        if action == "加入":
+            do = do_add
+        elif action == "移除":
+            do = do_delete
+
         if ctx.channel.id != 1495274950351650960:
             await ctx.followup.send(
                 "好好在指令頻道打指令很難嗎，都大學了難道我還要告訴你你家在哪嗎",
@@ -75,7 +103,7 @@ async def add_vip(ctx, student_id, file):
                 if not row[0]:
                     continue
                 id = str(row[0]).upper()
-                if await do_add(id):
+                if await do(id):
                     success += 1
                 else :
                     fail.append(id)
@@ -83,15 +111,15 @@ async def add_vip(ctx, student_id, file):
             conn.close()
 
             if len(fail) == 0:
-                await ctx.followup.send(f"成功加入{success}個繳費系會員")
+                await ctx.followup.send(f"成功{action}{success}個繳費系會員")
             else:
-                await ctx.followup.send(f"成功加入{success}個繳費系會員\n並且有{len(fail)}個成員不在伺服器裡，以下是名單：\n{fail}")
+                await ctx.followup.send(f"成功{action}{success}個繳費系會員\n並且有{len(fail)}個成員不在伺服器裡，以下是名單：\n{fail}")
             return
         
         # 輸入單一使用者
         if student_id:
-            if await do_add(student_id.upper()):
-                await ctx.followup.send(f"成功將{student_id}加入繳費系會員")
+            if await do(student_id.upper()):
+                await ctx.followup.send(f"成功將{student_id}{action}繳費系會員")
             else:
                 await ctx.followup.send(f"{student_id}沒有在伺服器")
             conn.commit()
