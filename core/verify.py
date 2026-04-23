@@ -7,7 +7,7 @@ import json
 import random
 import datetime
 import logging
-from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON
+from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
 from dotenv import load_dotenv
 from email.message import EmailMessage
 # pip freeze > package.txt
@@ -39,15 +39,16 @@ CODE_TIMEOUT=180
 # 載入資料庫
 #====================
 
-conn=sqlite3.connect("data.db")
+conn=sqlite3.connect(DB_PATH)
 cursor=conn.cursor()
 cursor.execute(
     """CREATE TABLE IF NOT EXISTS user_sql (
         student_id TEXT PRIMARY KEY,
-        role TEXT NOT NULL,
-        discord_id INTEGER NOT NULL,
+        role TEXT,
+        discord_id INTEGER,
         point INTEGER DEFAULT 0,
-        verified_time INTEGER NOT NULL
+        verified_time TEXT,
+        is_vip INTEGER DEFAULT 0
     )"""
 )
 
@@ -71,7 +72,7 @@ with open(ROLE_MAP_JSON,"r",encoding="utf-8") as r:
     role_map_class=role_map["class"]
 
 # 驗證信息記憶
-if not REMEMBER_MSG_JSON:
+if not os.path.exists(REMEMBER_MSG_JSON):
     with open(REMEMBER_MSG_JSON,"w",encoding="utf-8") as r:
         verify_msg={"channel":"1490543834302775438"}
         data=verify_msg
@@ -164,7 +165,7 @@ class AskStudentId(discord.ui.Modal):
             check=cursor.fetchone()
             if check :
                 await interaction.response.send_message(
-                    f"此學號已綁定一個帳號：{check(1)}，你可以再次驗證以覆蓋掉那個帳號",
+                    f"此學號已綁定一個帳號：{check[2]}，你可以再次驗證以覆蓋掉那個帳號",
                     view=StartCode(),
                     ephemeral=True
                 )
@@ -327,8 +328,9 @@ class EnterCode(discord.ui.Modal):
                 # 刪掉原本的人的所有身分組
                 cursor.execute("SELECT * FROM user_sql WHERE student_id = ?",(user_data["student_id"],))
                 delete = cursor.fetchone()
-                member = interaction.guild.get_member(delete[1])
-                await member.edit(roles=[])
+                if delete:
+                    member = interaction.guild.get_member(delete[2])
+                    await member.edit(roles=[])
                 
                 # 存入資料庫
                 inc_data(user_data["student_id"],interaction.user.id,role)
@@ -354,8 +356,10 @@ def inc_data(student_id,discord_id,role):
     verified_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
     cursor.execute(
         """
-        INSERT OR REPLACE INTO user_sql(student_id,discord_id,role,verified_time)
+        INSERT INTO user_sql(student_id,discord_id,role,verified_time)
         VALUES(?,?,?,?)
+        ON CONFLICT(student_id) DO UPDATE SET
+            discord_id = excluded.discord_id
         """,
         (student_id,discord_id,role,verified_time)
     )
