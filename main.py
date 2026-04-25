@@ -9,6 +9,7 @@ import core.maintion_command.version_update as version_update
 from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from core.system.logger import setup_logging
+# pip freeze > package.txt
 
 #====================
 # 傳bot參數

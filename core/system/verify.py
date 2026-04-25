@@ -10,7 +10,6 @@ import logging
 from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
 from dotenv import load_dotenv
 from email.message import EmailMessage
-# pip freeze > package.txt
 
 bot = None
 
