@@ -3,6 +3,7 @@ import openpyxl
 import sqlite3
 import logging
 from path import DB_PATH
+from discord_id import VIP_ROLE, SOCIETY_COMMAND_CHANNEL
 
 bot = None
 
@@ -21,7 +22,6 @@ async def edit(ctx, action, student_id, file):
     await ctx.defer()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    VIP_ROLE = ctx.guild.get_role(1492432261822550056)
 
     # 一次的加入操作
     async def do_add(id):
@@ -76,7 +76,7 @@ async def edit(ctx, action, student_id, file):
         elif action == "移除":
             do = do_delete
 
-        if ctx.channel.id != 1495274950351650960:
+        if ctx.channel.id != SOCIETY_COMMAND_CHANNEL:
             await ctx.followup.send(
                 "好好在指令頻道打指令很難嗎，都大學了難道我還要告訴你你家在哪嗎",
                 ephemeral = True

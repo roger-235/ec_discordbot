@@ -2,6 +2,7 @@ import discord
 import json
 import datetime
 from path import VERSION_POST_JSON
+from discord_id import MEMBER_NOTICE_CHANNEL, SOCIETY_NOTICE_CHANNEL
 
 bot = None
 time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -22,50 +23,42 @@ class Post(discord.ui.Modal):
             self.add_item(discord.ui.InputText(
                 label = "功能概要",
                 placeholder= "ex:以頻道顯示人數統整"
-                )
-            )
+            ))
             self.add_item(discord.ui.InputText(
                 label = "詳細功能說明",
                 style = discord.InputTextStyle.long,
                 max_length = 100
-                )
-            )
+            ))
         elif update_item == "new_command":
             self.add_item(discord.ui.InputText(
                 label = "指令名稱",
                 placeholder= "ex:/command"
-                )
-            )
+            ))
             self.add_item(discord.ui.InputText(
                 label = "詳細指令功能說明",
                 style = discord.InputTextStyle.long,
                 max_length = 100
-                )
-            )
+            ))
         elif update_item == "update_command":
             self.add_item(discord.ui.InputText(
                 label = "指令名稱",
                 placeholder= "ex:/command"
-                )
-            )
+            ))
             self.add_item(discord.ui.InputText(
                 label = "指令的舊功能",
                 style = discord.InputTextStyle.long,
                 max_length = 100
-                )
-            )
+            ))
             self.add_item(discord.ui.InputText(
                 label = "指令的新功能",
                 style = discord.InputTextStyle.long,
                 max_length = 100
-                )
-            )
+            ))
         elif update_item == "fix_bug":
             self.add_item(discord.ui.InputText(
                 label = "bug概要與編號",
                 placeholder = "ex:登入異常"
-                )
-            )
+            ))
             self.add_item(discord.ui.InputText(
                 label = "詳細bug內容與修復點",
                 max_length = 100
@@ -75,6 +68,7 @@ class Post(discord.ui.Modal):
                 max_length = 3
             ))
     async def callback(self, interaction):
+
         update_place = self.update_place
         update_item = self.update_item
         first = self.children[0].value
@@ -82,14 +76,16 @@ class Post(discord.ui.Modal):
         third = None
         hair = None
         version = "1.0.0"
+        
         if len(self.children) > 2:
             third = self.children[2].value
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sign = "陰暗爬行的長髮哥布林"
+
         if update_place == "系學會相關更新":
-            channel = interaction.guild.get_channel(1496784785182556170)
+            channel = interaction.guild.get_channel(SOCIETY_NOTICE_CHANNEL)
         elif update_place == "系會員相關更新":
-            channel = interaction.guild.get_channel(1496725482144796772)
+            channel = interaction.guild.get_channel(MEMBER_NOTICE_CHANNEL)
         if update_item == "fix_bug":    
             try:
                 hair = third

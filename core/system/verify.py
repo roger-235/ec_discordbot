@@ -7,9 +7,10 @@ import json
 import random
 import datetime
 import logging
-from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
 from dotenv import load_dotenv
 from email.message import EmailMessage
+from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
+from discord_id import WELLCOME_MESSAGE_CHANNEL, VERIFY_MESSAGE_CHANNEL
 
 bot = None
 
@@ -73,7 +74,7 @@ with open(ROLE_MAP_JSON,"r",encoding="utf-8") as r:
 # 驗證信息記憶
 if not os.path.exists(REMEMBER_MSG_JSON):
     with open(REMEMBER_MSG_JSON,"w",encoding="utf-8") as r:
-        verify_msg={"channel":"1490543834302775438"}
+        verify_msg={"channel":VERIFY_MESSAGE_CHANNEL}
         data=verify_msg
         json.dump(data,r,indent=4)
 else :
@@ -316,7 +317,7 @@ class EnterCode(discord.ui.Modal):
 
             # bot分配身分組
             if role_search:
-                channel=bot.get_channel(1488954519512416397)
+                channel=bot.get_channel(WELLCOME_MESSAGE_CHANNEL)
                 await interaction.user.add_roles(role_search)
                 await channel.send(f"歡迎{user_data['student_id']}加入伺服器")
                 await interaction.response.send_message(

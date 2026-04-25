@@ -1,5 +1,6 @@
 import discord
 import logging
+from discord_id import GUILD_ID, VIP_COUNT_CHANNEL, MEMBER_COUNT_CHANNEL, SOCIETY_COUNT_CHANNEL, DEV_COUNT_CHANNEL, BOT_COUNT_CHANNEL, WEBHOOK_COUNT_CHANNEL, VIP_ROLE, SOCIETY_ROLE, DEV_ROLE
 
 bot = None
 
@@ -26,22 +27,22 @@ async def rename():
     try :
 
         # 設定人數
-        guild = bot.get_guild(1488954517117472849)
-        pay = len(guild.get_role(1492432261822550056).members)
+        guild = bot.get_guild(GUILD_ID)
+        pay = len(guild.get_role(VIP_ROLE).members)
         total = sum(1 for m in guild.members if len(m.roles) > 1 and not m.bot)
-        society = len(guild.get_role(1490383387259568329).members)
-        develop = len(guild.get_role(1489211218177560689).members)
+        society = len(guild.get_role(SOCIETY_ROLE).members)
+        develop = len(guild.get_role(DEV_ROLE).members)
         robot = sum(1 for m in guild.members if m.bot)
         webhooks = await guild.webhooks()
         webhook = len(webhooks)
 
         update = [
-            (1494626253742018694,f"💸 || 繳費系會員 - {pay}"),
-            (1494626460122746910,f"👥 || 非繳費系會員 - {total - pay}"),
-            (1495256248466276363,f"🤵 || 系學會成員 - {society}"),
-            (1494629332658819225,f"🧑‍🔧 || 開發組 - {develop}"),
-            (1494626572672696490,f"🤖 || 機器人 - {robot}"),
-            (1494626742265188402,f"🦾 || webhook - {webhook}")
+            (VIP_COUNT_CHANNEL,f"💸 || 繳費系會員 - {pay}"),
+            (MEMBER_COUNT_CHANNEL,f"👥 || 非繳費系會員 - {total - pay}"),
+            (SOCIETY_COUNT_CHANNEL,f"🤵 || 系學會成員 - {society}"),
+            (DEV_COUNT_CHANNEL,f"🧑‍🔧 || 開發組 - {develop}"),
+            (BOT_COUNT_CHANNEL,f"🤖 || 機器人 - {robot}"),
+            (WEBHOOK_COUNT_CHANNEL,f"🦾 || webhook - {webhook}")
         ]
 
         # 迴圈改變名稱

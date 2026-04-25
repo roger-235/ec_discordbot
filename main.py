@@ -72,7 +72,11 @@ async def edit(ctx,
     ):
     
     await edit_vip.edit(ctx, action, one_id, file)
-    
+
+#====================
+# 發布版本更新指令
+#====================
+
 @bot.slash_command(name = "版本更新通知指令", description = "機器人自動發布版本更新通知")
 async def post(
     ctx,
