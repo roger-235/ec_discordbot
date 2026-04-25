@@ -3,7 +3,7 @@ import openpyxl
 import sqlite3
 import logging
 from path import DB_PATH
-from discord_id import VIP_ROLE, SOCIETY_COMMAND_CHANNEL
+from config import VIP_ROLE, SOCIETY_COMMAND_CHANNEL
 
 bot = None
 

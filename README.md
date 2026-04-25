@@ -27,15 +27,28 @@ email_pw=your_gmail_app_password
 log_webhook_url=https://discord.com/api/webhooks/.../...
 ```
 
-### 3. 修改硬編 ID
+### 3. 修改 ID
 
-| 檔案 | 內容 |
-| --- | --- |
-| [core/system/verify.py](core/system/verify.py) | 歡迎頻道 ID |
-| [core/system/count.py](core/system/count.py) | guild、身分組、人數頻道 ID |
-| [core/admin_command/edit_vip.py](core/admin_command/edit_vip.py) | VIP 身分組、指令頻道 ID |
-| [core/maintion_command/version_update.py](core/maintion_command/version_update.py) | 公告頻道 ID |
-| [json/remember_msg.json](json/remember_msg.json) | 驗證頻道 ID |
+所有 guild、頻道、身分組 ID 集中在 [config.py](config.py)，依自己的伺服器調整即可：
+
+```python
+GUILD_ID = ...
+
+# Channels
+COMMAND_CHANNEL = ...           # 指令頻道
+WELCOME_CHANNEL = ...           # 驗證歡迎頻道
+SOCIETY_NOTICE_CHANNEL = ...    # 系學會公告
+MEMBER_NOTICE_CHANNEL = ...     # 系會員公告
+PAY_COUNT_CHANNEL = ...         # 人數統計頻道（共 6 個）
+...
+
+# Roles
+VIP_ROLE_ID = ...               # 繳費系會員
+SOCIETY_ROLE_ID = ...           # 系學會
+DEV_ROLE_ID = ...               # 開發組
+```
+
+驗證頻道 ID 例外，存於 [json/remember_msg.json](json/remember_msg.json)，首次啟動會自動建立。
 
 ### 4. 執行
 
@@ -62,6 +75,7 @@ python main.py
 ```
 .
 ├── main.py
+├── config.py                        # 集中管理 guild / channel / role ID
 ├── path.py                          # 集中管理檔案路徑
 ├── role.py                          # 身分組權限批次複製工具
 ├── data.db                          # SQLite（自動建立）

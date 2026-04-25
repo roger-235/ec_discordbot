@@ -2,7 +2,7 @@ import discord
 import json
 import datetime
 from path import VERSION_POST_JSON
-from discord_id import MEMBER_NOTICE_CHANNEL, SOCIETY_NOTICE_CHANNEL
+from config import MEMBER_NOTICE_CHANNEL, SOCIETY_NOTICE_CHANNEL
 
 bot = None
 time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

@@ -10,7 +10,7 @@ import logging
 from dotenv import load_dotenv
 from email.message import EmailMessage
 from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
-from discord_id import WELLCOME_MESSAGE_CHANNEL, VERIFY_MESSAGE_CHANNEL
+from config import WELLCOME_MESSAGE_CHANNEL, VERIFY_MESSAGE_CHANNEL
 
 bot = None
 
