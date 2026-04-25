@@ -5,9 +5,10 @@ import logging
 import core.system.verify as verify
 import core.system.count as count
 import core.admin_command.edit_vip as edit_vip
+import core.maintion_command.version_update as version_update
+from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from core.system.logger import setup_logging
-from dotenv import load_dotenv
 
 #====================
 # 傳bot參數
@@ -63,12 +64,20 @@ async def update_stats():
 #====================
 
 @bot.slash_command(name = "edit_vip", description = "丟一個把學號全放在A列的.xlsx檔案可以批次輸入學號來編輯繳費系會員名單")
-async def add_vip(ctx,
+async def edit(ctx,
     action = discord.Option(str, choices = ["加入", "移除"]),
     one_id = discord.Option(str, description = "只能輸入一個學號", required = False),
     file = discord.Option(discord.Attachment, "上傳檔案", required = False)
     ):
     
-    await edit_vip.add_vip(ctx, action, one_id, file)
+    await edit_vip.edit(ctx, action, one_id, file)
     
+@bot.slash_command(name = "版本更新通知指令", description = "機器人自動發布版本更新通知")
+async def post(
+    ctx,
+    update_place = discord.Option(str, choices = ["系學會相關更新", "系會員相關更新"]),
+    update_item = discord.Option(str, choices = ["update_server", "new_command", "update_command", "fix_bug"])
+):
+    await ctx.send_modal(version_update.Post(update_place, update_item))
+
 bot.run(discordbot_api)

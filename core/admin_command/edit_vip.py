@@ -16,7 +16,7 @@ logger = logging.getLogger("ec_bot")
 # 給繳費系會員身分組
 #===================
 
-async def add_vip(ctx, action, student_id, file):
+async def edit(ctx, action, student_id, file):
     '''批量編輯繳費系會員'''
     await ctx.defer()
     conn = sqlite3.connect(DB_PATH)
