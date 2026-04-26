@@ -80,8 +80,11 @@ async def edit(ctx,
 @bot.slash_command(name = "版本更新通知指令", description = "機器人自動發布版本更新通知")
 async def post(
     ctx,
-    update_place = discord.Option(str, choices = ["系學會相關更新", "系會員相關更新"]),
-    update_item = discord.Option(str, choices = ["update_server", "new_command", "update_command", "fix_bug"])
+    update_place= discord.Option(str, choices = [
+        discord.OptionChoice(name = "系學會相關更新", value = "society"),
+        discord.OptionChoice(name = "系會員相關更新", value = "member")
+        ]),
+    update_item = discord.Option(str, choices = ["server_update", "new_command", "command_update", "fix_bug"])
 ):
     await ctx.send_modal(version_update.Post(update_place, update_item))
 

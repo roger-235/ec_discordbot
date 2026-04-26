@@ -1,6 +1,6 @@
 {
-    "update_server":"# ✨ 伺服器又更新了一個功能：{first}\n> {time} ・ {place}\n> Version : v{version}\n\n**功能說明：**\n{second}\n\n\n如果對這個伺服器有任何有趣的想法，歡迎在<#1490585418301706280>提出:bangbang:\n\n--by:{sign}",
-    "new_command":"# :mechanical_arm: 機器人又偷偷進化了\n> {time} ・ {place}\n> Version : v{version}\n\n經歷七七四十九天的煉丹，新指令又出爐了:bangbang:\n## 指令：`{first}`\n\n**用法跟功能：**\n{second}\n\n\n如果有發現任何的「特性」，請在<#1490584664627482715>回報\n\n--by:{sign}",
-    "update_command":"# 🔧 功能更新\n> {time} ・ {place}\n> Version : v{version}\n\n## 指令：{first}\n\n**舊功能：**\n{second}\n\n**更新後的功能：**\n{third}\n\n\n--by:{sign}",
-    "fix_bug":"# 🐛 {first} :\n> {time} ・ {place}\n> Version : v{version}\n\n**Issue:**\n{second}\n\n\n此次修復花費{hair}根頭髮\n如果還有任何問題請右轉<#1490584664627482715>回報\n\n--by:{sign}"
+    "update_server":"# ✨ 伺服器又更新了一個功能：{first}\n> {time} ・ {place}\n> Version : v {version}\n\n**功能說明：**\n{second}\n\n\n如果對這個伺服器有任何有趣的想法，歡迎在<#1490585418301706280>提出:bangbang:\n\n--by:{sign}",
+    "new_command":"# :mechanical_arm: 機器人又偷偷進化了\n> {time} ・ {place}\n> Version : v {version}\n\n經歷七七四十九天的煉丹，新指令又出爐了:bangbang:\n## 指令：`{first}`\n\n**用法跟功能：**\n{second}\n\n\n如果有發現任何的「特性」，請在<#1490584664627482715>回報\n\n--by:{sign}",
+    "update_command":"# 🔧 功能更新\n> {time} ・ {place}\n> Version : v {version}\n\n## 指令：{first}\n\n**舊功能與新功能對比：**\n{second}\n\n\n--by:{sign}",
+    "fix_bug":"# 🐛 {first} :\n> {time} ・ {place}\n> Version : v {version}\n\n**Issue:**\n{second}\n\n\n此次修復花費{hair}根頭髮\n如果還有任何問題請右轉<#1490584664627482715>回報\n\n--by:{sign}"
 }

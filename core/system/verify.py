@@ -76,7 +76,7 @@ if not os.path.exists(REMEMBER_MSG_JSON):
     with open(REMEMBER_MSG_JSON,"w",encoding="utf-8") as r:
         verify_msg={"channel":VERIFY_MESSAGE_CHANNEL}
         data=verify_msg
-        json.dump(data,r,indent=4)
+        json.dump(data, r, indent = 4)
 else :
     with open(REMEMBER_MSG_JSON,"r",encoding="utf-8") as r:
         verify_msg=json.load(r)

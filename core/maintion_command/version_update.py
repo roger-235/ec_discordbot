@@ -1,7 +1,7 @@
 import discord
 import json
 import datetime
-from path import VERSION_POST_JSON
+from path import VERSION_POST_JSON, VERSION_JSON
 from config import MEMBER_NOTICE_CHANNEL, SOCIETY_NOTICE_CHANNEL
 
 bot = None
@@ -11,7 +11,7 @@ def init(b):
     global bot
     bot = b
 
-with open(VERSION_POST_JSON,"r",encoding = "utf-8") as v:
+with open(VERSION_POST_JSON, "r", encoding = "utf-8") as v:
     version_json = json.load(v)
 
 class Post(discord.ui.Modal):
@@ -19,7 +19,7 @@ class Post(discord.ui.Modal):
         super().__init__(title = f"{update_place}公告")
         self.update_place = update_place
         self.update_item = update_item
-        if update_item == "update_server":
+        if update_item == "server_update":
             self.add_item(discord.ui.InputText(
                 label = "功能概要",
                 placeholder= "ex:以頻道顯示人數統整"
@@ -39,18 +39,13 @@ class Post(discord.ui.Modal):
                 style = discord.InputTextStyle.long,
                 max_length = 100
             ))
-        elif update_item == "update_command":
+        elif update_item == "command_update":
             self.add_item(discord.ui.InputText(
                 label = "指令名稱",
                 placeholder= "ex:/command"
             ))
             self.add_item(discord.ui.InputText(
-                label = "指令的舊功能",
-                style = discord.InputTextStyle.long,
-                max_length = 100
-            ))
-            self.add_item(discord.ui.InputText(
-                label = "指令的新功能",
+                label = "指令的新舊功能差異",
                 style = discord.InputTextStyle.long,
                 max_length = 100
             ))
@@ -75,18 +70,36 @@ class Post(discord.ui.Modal):
         second = self.children[1].value
         third = None
         hair = None
-        version = "1.0.0"
+
+        with open(VERSION_JSON, "r", encoding = "utf-8") as v:
+            version_load = json.load(v)
+            version_num = version_load[f"{update_place}"]
         
+        version_num["major"] += (update_item == "server_update")
+        version_num["minor"] += (update_item == "new_command")
+        version_num["patch"] += (update_item in ("command_update", "fix_bug"))
+        version_num["minor"] = (0 if update_item == "server_update" else version_num["minor"])
+        version_num["patch"] = (0 if update_item in("server_update", "new_command") else version_num["patch"])
+        
+        version_load[update_place] = version_num
+
+        with open(VERSION_JSON, "w", encoding = "utf-8") as v:
+            json.dump(version_load, v, indent = 4)
+        
+        version = f"{version_num["major"]} . {version_num["minor"]} . {version_num["patch"]}"
+
         if len(self.children) > 2:
             third = self.children[2].value
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sign = "陰暗爬行的長髮哥布林"
 
-        if update_place == "系學會相關更新":
+        if update_place == "society":
             channel = interaction.guild.get_channel(SOCIETY_NOTICE_CHANNEL)
-        elif update_place == "系會員相關更新":
+            place = "系學會相關更新"
+        elif update_place == "member":
             channel = interaction.guild.get_channel(MEMBER_NOTICE_CHANNEL)
-        if update_item == "fix_bug":    
+            place = "系會員相關更新"
+        if update_item == "fix_bug":
             try:
                 hair = third
             except ValueError:
@@ -101,7 +114,7 @@ class Post(discord.ui.Modal):
             third = third,
             time = time,
             hair = hair,
-            place = update_place,
+            place = place,
             sign = sign
             ))
         
