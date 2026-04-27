@@ -70,24 +70,16 @@ with open(ROLE_MAP_JSON,"r",encoding="utf-8") as r:
     role_map=json.load(r)
     role_map_grade=role_map["grade"]
     role_map_class=role_map["class"]
-
-# 驗證信息記憶
-if not os.path.exists(REMEMBER_MSG_JSON):
-    with open(REMEMBER_MSG_JSON,"w",encoding="utf-8") as r:
-        verify_msg={"channel":VERIFY_MESSAGE_CHANNEL}
-        data=verify_msg
-        json.dump(data, r, indent = 4)
-else :
-    with open(REMEMBER_MSG_JSON,"r",encoding="utf-8") as r:
-        verify_msg=json.load(r)
-
+with open(REMEMBER_MSG_JSON,"r",encoding="utf-8") as r:
+    message=json.load(r)
+    verify_msg = message["verify"]
 
 #====================
 # 記住message
 #====================
 
 async def save_massage():
-    channel=bot.get_channel(int(verify_msg["channel"]))
+    channel=bot.get_channel(VERIFY_MESSAGE_CHANNEL)
     try :
         msg=await channel.fetch_message(verify_msg.get("message_id"))
     except (discord.NotFound, discord.HTTPException) :
@@ -96,8 +88,9 @@ async def save_massage():
             view=StartVerify(),
         )
         verify_msg["message_id"]=msg.id
+        message["verify"] = verify_msg
         with open(REMEMBER_MSG_JSON,"w",encoding="utf-8",) as r:
-            json.dump(verify_msg,r,indent=4)
+            json.dump(message,r,indent=4)
     except Exception as e :
         logging.error(f"記憶驗證初始化：{e}", exc_info=True)
 
@@ -163,7 +156,7 @@ class AskStudentId(discord.ui.Modal):
             # 確認伺服器沒人用過這個學號
             cursor.execute("SELECT * FROM user_sql WHERE student_id =?",(student_id,))
             check=cursor.fetchone()
-            if check :
+            if check and check[2] :
                 await interaction.response.send_message(
                     f"此學號已綁定一個帳號：{check[2]}，你可以再次驗證以覆蓋掉那個帳號",
                     view=StartCode(),

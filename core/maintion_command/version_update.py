@@ -62,6 +62,7 @@ class Post(discord.ui.Modal):
                 label = "一到一百給bug修復難易度評分",
                 max_length = 3
             ))
+            
     async def callback(self, interaction):
 
         update_place = self.update_place
@@ -74,7 +75,8 @@ class Post(discord.ui.Modal):
         with open(VERSION_JSON, "r", encoding = "utf-8") as v:
             version_load = json.load(v)
             version_num = version_load[f"{update_place}"]
-        
+
+        # 判斷版本號變化 
         version_num["major"] += (update_item == "server_update")
         version_num["minor"] += (update_item == "new_command")
         version_num["patch"] += (update_item in ("command_update", "fix_bug"))
@@ -93,12 +95,15 @@ class Post(discord.ui.Modal):
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sign = "陰暗爬行的長髮哥布林"
 
+        # 選擇傳送的頻道
         if update_place == "society":
             channel = interaction.guild.get_channel(SOCIETY_NOTICE_CHANNEL)
             place = "系學會相關更新"
         elif update_place == "member":
             channel = interaction.guild.get_channel(MEMBER_NOTICE_CHANNEL)
             place = "系會員相關更新"
+
+        # 輸入數字防呆
         if update_item == "fix_bug":
             try:
                 hair = third
@@ -107,6 +112,7 @@ class Post(discord.ui.Modal):
                     "輸入一到一百以內的數字是很難是不是\n就是有你這種傻逼我他媽還需要特別為了你特別寫防蠢機制"
                 )
 
+        # json文章傳入並發送
         await channel.send(version_json[f"{update_item}"].format(
             first = first,
             version = version,
