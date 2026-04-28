@@ -9,7 +9,7 @@ import datetime
 import logging
 from dotenv import load_dotenv
 from email.message import EmailMessage
-from path import REMEMBER_MSG_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
+from path import BOT_MESSAGE_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
 from config import WELLCOME_MESSAGE_CHANNEL, VERIFY_MESSAGE_CHANNEL
 
 bot = None
@@ -70,7 +70,7 @@ with open(ROLE_MAP_JSON,"r",encoding="utf-8") as r:
     role_map=json.load(r)
     role_map_grade=role_map["grade"]
     role_map_class=role_map["class"]
-with open(REMEMBER_MSG_JSON,"r",encoding="utf-8") as r:
+with open(BOT_MESSAGE_JSON,"r",encoding="utf-8") as r:
     message=json.load(r)
     verify_msg = message["verify"]
 
@@ -81,16 +81,16 @@ with open(REMEMBER_MSG_JSON,"r",encoding="utf-8") as r:
 async def save_massage():
     channel=bot.get_channel(VERIFY_MESSAGE_CHANNEL)
     try :
-        msg=await channel.fetch_message(verify_msg.get("message_id"))
+        msg = await channel.fetch_message(verify_msg.get("message_id"))
     except (discord.NotFound, discord.HTTPException) :
         msg = await channel.send(
-            "歡迎加入電子工程系專屬伺服器 👋\n這裡是系上專屬的交流空間，\n為了確保大家都是自己人，請先完成驗證！\n\n :point_down: 點擊下方按鈕開始驗證\n完成後就可以解鎖所有頻道啦 :bangbang: ",
-            view=StartVerify(),
+            verify_msg["content"],
+            view=StartVerify()
         )
         verify_msg["message_id"]=msg.id
         message["verify"] = verify_msg
-        with open(REMEMBER_MSG_JSON,"w",encoding="utf-8",) as r:
-            json.dump(message,r,indent=4)
+        with open(BOT_MESSAGE_JSON,"w",encoding="utf-8",) as r:
+            json.dump(message, r, ensure_ascii = False, indent=4)
     except Exception as e :
         logging.error(f"記憶驗證初始化：{e}", exc_info=True)
 

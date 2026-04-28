@@ -2,14 +2,20 @@ import discord
 import os
 import datetime
 import logging
+import sqlite3
 import core.system.verify as verify
 import core.system.count as count
+import core.system.service as service
 import core.admin_command.edit_vip as edit_vip
 import core.maintion_command.version_update as version_update
 from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from core.system.logger import setup_logging
+from path import DB_PATH
 # pip freeze > package.txt
+
+conn = sqlite3.connect(DB_PATH)
+cursor = conn.cursor()
 
 #====================
 # 傳bot參數
@@ -20,6 +26,7 @@ bot = discord.Bot(intents=intents)
 verify.init(bot)
 count.init(bot)
 edit_vip.init(bot)
+service.init(bot)
 
 #====================
 # 載入log
@@ -48,6 +55,9 @@ async def on_ready():
     # 驗證學號訊息
     bot.add_view(verify.StartVerify())
     await verify.save_massage()
+
+    bot.add_view(service.ServiceView())
+    await service.save_message()
 
     update_stats.start()
 
@@ -87,5 +97,10 @@ async def post(
     update_item = discord.Option(str, choices = ["server_update", "new_command", "command_update", "fix_bug"])
 ):
     await ctx.send_modal(version_update.Post(update_place, update_item))
+
+@bot.slash_command(name = "close", discription = "關閉目前的私人頻道")
+async def close_service(ctx):
+    channel = ctx.channel
+    await channel.delete()
 
 bot.run(discordbot_api)
