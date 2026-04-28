@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from core.system.logger import setup_logging
 from path import DB_PATH
+from config import SERVICE_CATEGORY
 # pip freeze > package.txt
 
 conn = sqlite3.connect(DB_PATH)
@@ -98,9 +99,19 @@ async def post(
 ):
     await ctx.send_modal(version_update.Post(update_place, update_item))
 
+#====================
+# 刪除開單頻道
+#====================
+
 @bot.slash_command(name = "close", discription = "關閉目前的私人頻道")
 async def close_service(ctx):
     channel = ctx.channel
-    await channel.delete()
+    if channel.category and channel.category.id == SERVICE_CATEGORY:
+        await channel.delete()
+    else:
+        await ctx.respond(
+            "這個指令很危險沒事不要亂玩，等你用得到的時候自然就知道他是做什麼的了",
+            ephemeral = True
+        )
 
 bot.run(discordbot_api)
