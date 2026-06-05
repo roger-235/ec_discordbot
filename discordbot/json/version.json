@@ -1,0 +1,12 @@
+{
+    "society": {
+        "major": 0,
+        "minor": 1,
+        "patch": 0
+    },
+    "member": {
+        "major": 2,
+        "minor": 0,
+        "patch": 0
+    }
+}
