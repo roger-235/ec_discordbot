@@ -1,5 +1,6 @@
-.env
-.claude
-.venv
-data.db
-__pycache__/
+*.env
+/.claude
+AGENTS.md
+CLAUDE.md
+*.venv/
+*__pycache__/

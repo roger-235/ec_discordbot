@@ -9,8 +9,9 @@ import datetime
 import logging
 from dotenv import load_dotenv
 from email.message import EmailMessage
-from path import BOT_MESSAGE_JSON, EMAIL_JSON, ROLE_MAP_JSON, DB_PATH
-from config import WELLCOME_MESSAGE_CHANNEL, VERIFY_MESSAGE_CHANNEL
+from path import BOT_MESSAGE_JSON, EMAIL_JSON, ROLE_MAP_JSON
+from config import WELLCOME_MESSAGE_CHANNEL, VERIFY_MESSAGE_CHANNEL, SERVICE_MESSAGE_CHANNEL
+from database import get_user, get_user_by_discord_id, write_discord_id
 
 bot = None
 
@@ -34,23 +35,6 @@ def init(b):
 
 code_ram={}
 CODE_TIMEOUT=180
-
-#====================
-# 載入資料庫
-#====================
-
-conn=sqlite3.connect(DB_PATH)
-cursor=conn.cursor()
-cursor.execute(
-    """CREATE TABLE IF NOT EXISTS user_sql (
-        student_id TEXT PRIMARY KEY,
-        role TEXT,
-        discord_id INTEGER,
-        point INTEGER DEFAULT 0,
-        verified_time TEXT,
-        is_vip INTEGER DEFAULT 0
-    )"""
-)
 
 #====================
 # 載入env
@@ -112,8 +96,7 @@ class StartVerify(discord.ui.View):
     async def start(self,button,interaction):
         try :
             # 確認使用者沒有二次驗證
-            cursor.execute("SELECT * FROM user_sql WHERE discord_id =?",(interaction.user.id,))
-            check=cursor.fetchone()
+            check=get_user_by_discord_id(str(interaction.user.id))
             if check :
                 await interaction.response.send_message(
                     "你都有身分組了還想幹嘛",
@@ -154,21 +137,19 @@ class AskStudentId(discord.ui.Modal):
             student_id=self.children[0].value.upper()
 
             # 確認伺服器沒人用過這個學號
-            cursor.execute("SELECT * FROM user_sql WHERE student_id =?",(student_id,))
-            check=cursor.fetchone()
-            if check and check[2] :
+            check=get_user(student_id = student_id)
+            if check:
                 await interaction.response.send_message(
-                    f"此學號已綁定一個帳號：{check[2]}，你可以再次驗證以覆蓋掉那個帳號",
+                    f"此學號已綁定一個帳號：{check[5]}，你可以再次驗證以覆蓋掉那個帳號",
                     view=StartCode(),
                     ephemeral=True
                 )
                 return
             
-            student_id[3:]
             # 確認是電子工程系學生
-            if student_id[2:] != "C114" or student_id[3:6] != "152":
+            if not check:
                 await interaction.response.send_message(
-                    "你確定你是建工電子的嗎，如果是轉系生請開單聯絡管理員手動把你加入",
+                    f"如果您是電子系的請到<#{SERVICE_MESSAGE_CHANNEL}>",
                     ephemeral=True
                 )
                 return
@@ -301,8 +282,9 @@ class EnterCode(discord.ui.Modal):
         try :
 
             # 抓年級跟班級
-            role_grade=role_map_grade[user_data["student_id"][:4]]
-            role_class=role_map_class[user_data["student_id"][7]]
+            role = get_user(user_data["student_id"])
+            role_grade = role_map_grade[role[3][2]]
+            role_class = role_map_class[role[3][3]]
             role=f"{role_grade}-{role_class}"
             
             # 抓身分組
@@ -318,15 +300,12 @@ class EnterCode(discord.ui.Modal):
                     ephemeral=True
                 )
 
-                # 刪掉原本的人的所有身分組
-                cursor.execute("SELECT * FROM user_sql WHERE student_id = ?",(user_data["student_id"],))
-                delete = cursor.fetchone()
-                if delete:
-                    member = interaction.guild.get_member(delete[2])
-                    await member.edit(roles=[])
-                
+                delete = get_user(student_id=user_data["student_id"])
+                member = interaction.guild.get_member(delete[5])
+                await member.edit(role=[])
+
                 # 存入資料庫
-                inc_data(user_data["student_id"],interaction.user.id,role)
+                write_discord_id(user_data["student_id"], str(interaction.user.id))
             else :
                 await interaction.response.send_message(
                     f"找不到身分組:{role}",
@@ -340,21 +319,3 @@ class EnterCode(discord.ui.Modal):
                 "分配身分組出了點問題，我們已收到報錯訊息，請耐心等候我們的修復！",
                 ephemeral=True
                 )
-
-#====================
-# 資料存入資料庫
-#====================
-
-def inc_data(student_id,discord_id,role):
-    verified_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
-    cursor.execute(
-        """
-        INSERT INTO user_sql(student_id,discord_id,role,verified_time)
-        VALUES(?,?,?,?)
-        ON CONFLICT(student_id) DO UPDATE SET
-            discord_id = excluded.discord_id
-        """,
-        (student_id,discord_id,role,verified_time)
-    )
-    conn.commit()
-

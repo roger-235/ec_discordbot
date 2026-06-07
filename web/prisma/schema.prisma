@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model users {
+  studentId String  @id
+  year      Int
+  name      String
+  class     String
+  isPaid    Boolean @default(false)
+  discordId String?
+  point     Int     @default(0)
+  identity  String  @default("member")
+  core      cores?
+}
+
+model posts {
+  postId      Int       @id @default(autoincrement())
+  title       String
+  content     String
+  applyURL    String?
+  eventTime   DateTime? @db.Date
+  createTime  DateTime  @default(now()) @db.Timestamptz
+}
+
+model cores{
+  coreId    Int     @id @default(autoincrement())
+  studentId String  @unique
+  user      users   @relation(fields: [studentId], references: [studentId])
+  imageURL  String
+  linkURL   String?     
+  position  String
+  sentence  String
+}
+
+//npx prisma db push
+//npx prisma generate

@@ -11,7 +11,7 @@ import core.maintion_command.version_update as version_update
 from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from core.system.logger import setup_logging
-from path import DB_PATH
+from discordbot.path import DB_PATH
 from config import SERVICE_CATEGORY
 # pip freeze > package.txt
 
@@ -41,7 +41,7 @@ logger=logging.getLogger("ec_bot")
 #====================
 
 load_dotenv()
-discordbot_api=os.getenv("discordbot_api")
+discordbot_api=os.getenv("DISCORDBOT_API")
 
 #====================
 # 機器人啟動函式

@@ -1,7 +1,7 @@
 import discord
 import json
 import datetime
-from path import VERSION_POST_JSON, VERSION_JSON
+from discordbot.path import VERSION_POST_JSON, VERSION_JSON
 from config import MEMBER_NOTICE_CHANNEL, SOCIETY_NOTICE_CHANNEL
 
 bot = None

@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: #273b28;
+  background-image: radial-gradient(circle, #2a6a2e 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
+  color: #e8f0e8;
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* PCB card — copper border with solder pad corners */
+.pcb-card {
+  position: relative;
+  border: 1px solid #226026;
+  background-color: rgba(42, 90, 46, 0.25);
+  backdrop-filter: blur(1px);
+}
+.pcb-card::before,
+.pcb-card::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #b87333;
+  z-index: 1;
+}
+.pcb-card::before { top: -5px; left: -5px; }
+.pcb-card::after  { bottom: -5px; right: -5px; }
+
+/* Copper accent border */
+.copper { border-color: #b87333; }
+
+/* Solder gold text */
+.gold { color: #d4a843; }
+
+/* Silk screen label style */
+.silk {
+  color: #7aaa7a;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Cursor blink */
+.cursor::after {
+  content: '▋';
+  animation: blink 1.2s step-end infinite;
+  color: #d4a843;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
