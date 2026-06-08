@@ -1,0 +1,12 @@
+services:
+  web:
+    build: ./web
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./web/.env
+    
+  bot:
+    build: ./web
+    env_file:
+      - ./discordbot/.env

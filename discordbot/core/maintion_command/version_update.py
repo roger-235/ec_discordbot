@@ -93,6 +93,8 @@ class Post(discord.ui.Modal):
         if len(self.children) > 2:
             third = self.children[2].value
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        #更新簽名，之後有更多人協作的話要作一個根據發布人的簽名
         sign = "陰暗爬行的長髮哥布林"
 
         # 選擇傳送的頻道
