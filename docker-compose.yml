@@ -7,6 +7,6 @@ services:
       - ./web/.env
     
   bot:
-    build: ./web
+    build: ./discordbot
     env_file:
       - ./discordbot/.env
