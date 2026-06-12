@@ -8,7 +8,7 @@ export default function NewCorePage() {
   const [form, setForm] = useState({
     studentId: "",
     position: "",
-    introduction: "",
+    sentence: "",
     imageURL: "",
   })
   const [loading, setLoading] = useState(false)
@@ -29,7 +29,7 @@ export default function NewCorePage() {
       body: JSON.stringify({
         studentId: form.studentId,
         position: form.position,
-        introduction: form.introduction,
+        sentence: form.sentence,
         imageURL: form.imageURL || "",
       }),
     })
@@ -82,8 +82,8 @@ export default function NewCorePage() {
           <div>
             <span className="silk block mb-2 text-[#4a7a4a]"># 自我介紹</span>
             <textarea
-              name="introduction"
-              value={form.introduction}
+              name="sentence"
+              value={form.sentence}
               onChange={handleChange}
               required
               rows={4}

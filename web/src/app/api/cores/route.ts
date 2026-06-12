@@ -8,7 +8,7 @@ export async function POST(request: Request){
             imageURL: body.imageURL,
             linkURL: body.linkURL,
             position: body.position,
-            introduction: body.introduction
+            sentence: body.sentence
         }
     })
     return Response.json(cores, { status: 201 })

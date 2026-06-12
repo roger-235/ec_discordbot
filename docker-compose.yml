@@ -1,11 +1,22 @@
 services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PW}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - /mnt/db/postgresql:/var/lib/postgresql/data
   web:
-    build: ./web
+    build:
+      context: ./web
+      args:
+        DATABASE_URL: ${DATABASE_URL}
     ports:
       - "3000:3000"
     env_file:
       - ./web/.env
-    
+
   bot:
     build: ./discordbot
     env_file:

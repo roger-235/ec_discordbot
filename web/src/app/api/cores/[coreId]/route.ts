@@ -26,7 +26,7 @@ export async function PATCH(
             imageURL: body.imageURL,
             linkURL: body.linkURL,
             position: body.position,
-            introduction: body.introduction
+            sentence: body.sentence
         }
     })
     return Response.json(core, { status: 201 })
@@ -37,8 +37,8 @@ export async function DELETE(
     { params }: { params: Promise<{ coreId: string }>}
 ){
     const { coreId } = await params
-    await prisma.posts.delete({
-        where: { postId: parseInt(coreId) }
+    await prisma.cores.delete({
+        where: { coreId: parseInt(coreId) }
     })
     return Response.json(null, { status: 204 })
 }

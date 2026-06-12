@@ -32,7 +32,7 @@ export default async function CadresPage() {
               </div>
               <p className="text-3xl font-black text-[#e8f0e8] mb-2">{president.user.name}</p>
               <p className="text-sm text-[#d4a843]">{president.position}</p>
-              <p className="text-xs text-[#4a7a4a] mt-3 line-clamp-3">{president.introduction}</p>
+              <p className="text-xs text-[#4a7a4a] mt-3 line-clamp-3">{president.sentence}</p>
             </div>
             <span className="silk mt-8 block">YEAR: {president.user.year} · VCC=5V</span>
           </Link>

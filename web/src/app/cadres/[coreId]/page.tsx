@@ -54,7 +54,7 @@ export default async function CadreDetailPage({
 
             <div className="border-t border-[#3a6a3e] pt-4">
               <span className="silk block mb-2 text-[#4a7a4a]"># 自我介紹</span>
-              <p className="text-sm text-[#c8d8c8] leading-relaxed">{core.introduction}</p>
+              <p className="text-sm text-[#c8d8c8] leading-relaxed">{core.sentence}</p>
             </div>
           </div>
         </div>

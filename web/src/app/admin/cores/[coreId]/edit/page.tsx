@@ -7,7 +7,7 @@ export default function EditCorePage({ params }: { params: Promise<{ coreId: str
   const router = useRouter()
   const [form, setForm] = useState({
     position: "",
-    introduction: "",
+    sentence: "",
     imageURL: "",
   })
   const [name, setName] = useState("")
@@ -22,7 +22,7 @@ export default function EditCorePage({ params }: { params: Promise<{ coreId: str
         .then((core) => {
           setForm({
             position: core.position ?? "",
-            introduction: core.introduction ?? "",
+            sentence: core.sentence ?? "",
             imageURL: core.imageURL ?? "",
           })
           setName(core.user?.name ?? "")
@@ -46,7 +46,7 @@ export default function EditCorePage({ params }: { params: Promise<{ coreId: str
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         position: form.position,
-        introduction: form.introduction,
+        sentence: form.sentence,
         imageURL: form.imageURL || "",
       }),
     })
@@ -93,8 +93,8 @@ export default function EditCorePage({ params }: { params: Promise<{ coreId: str
           <div>
             <span className="silk block mb-2 text-[#4a7a4a]"># 自我介紹</span>
             <textarea
-              name="introduction"
-              value={form.introduction}
+              name="sentence"
+              value={form.sentence}
               onChange={handleChange}
               required
               rows={4}
