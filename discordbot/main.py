@@ -2,7 +2,6 @@ import discord
 import os
 import datetime
 import logging
-import sqlite3
 import database
 import core.system.verify as verify
 import core.system.count as count
@@ -11,12 +10,7 @@ import core.maintion_command.version_update as version_update
 from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from core.system.logger import setup_logging
-from discordbot.path import DB_PATH
 from config import SERVICE_CATEGORY
-# pip freeze > package.txt
-
-conn = sqlite3.connect(DB_PATH)
-cursor = conn.cursor()
 
 #====================
 # 傳bot參數
@@ -27,7 +21,6 @@ bot = discord.Bot(intents=intents)
 verify.init(bot)
 count.init(bot)
 service.init(bot)
-database.init()
 
 #====================
 # 載入log
@@ -60,6 +53,7 @@ async def on_ready():
     bot.add_view(service.ServiceView())
     await service.save_message()
 
+    await database.init()
     update_stats.start()
 
 #====================

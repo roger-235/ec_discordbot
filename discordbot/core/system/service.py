@@ -1,6 +1,6 @@
 import discord
 import json
-from discordbot.path import BOT_MESSAGE_JSON
+from path import BOT_MESSAGE_JSON
 from config import SERVICE_MESSAGE_CHANNEL, SOCIETY_ROLE, SERVICE_CATEGORY
 
 bot = None
